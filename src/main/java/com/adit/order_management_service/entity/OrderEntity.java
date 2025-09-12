@@ -2,13 +2,17 @@ package com.adit.order_management_service.entity;
 
 import com.adit.order_management_service.model.request.OrderStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity(name = "oms_order")
 public class OrderEntity {
 
