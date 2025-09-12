@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class AdditionalInfo {
-    private LocalDateTime orderCreatedDate;
-    private LocalDateTime orderLastUpdatedDate;
+    private String orderCreatedDate;
+    private String  orderLastUpdatedDate;
     private String userAuthenticated;
 }

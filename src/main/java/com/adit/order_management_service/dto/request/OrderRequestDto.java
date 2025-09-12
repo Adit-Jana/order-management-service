@@ -6,11 +6,11 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-@Builder
+//@Builder
 public class OrderRequestDto {
     private Long orderId;
     private String orderDesc;
-    private BigDecimal totalOrderAmount;
+    private Double totalOrderAmount;
     private Integer productId;
     private Integer userId;
     private String paymentUid;

@@ -2,7 +2,7 @@ package com.adit.order_management_service.model.request;
 
 public enum OrderStatus {
 
-    ORDERED,
+    CREATED,
     PENDING,
     DELIVERED,
     IN_TRANSIT,
