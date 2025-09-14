@@ -18,10 +18,21 @@ public class ProductEntity {
     @SequenceGenerator(name = "product_sequence",
             sequenceName = "oms_product_sequence",
             allocationSize = 1)
-    private Long product_id;
-    private String product_name;
-    private String product_desc;
-    private String product_category;
-    private Double product_price;
-    private Integer product_quantity;
+    @Column(name = "product_id")
+    private Long productId;
+
+    @Column(name = "product_name")
+    private String productName;
+
+    @Column(name = "product_desc")
+    private String productDesc;
+
+    @Column(name = "product_category")
+    private String productCategory;
+
+    @Column(name = "product_price")
+    private Double productPrice;
+
+    @Column(name = "product_quantity")
+    private Integer productQuantity;
 }

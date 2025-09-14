@@ -1,6 +1,6 @@
 package com.adit.order_management_service.entity;
 
-import com.adit.order_management_service.model.request.OrderStatus;
+import com.adit.order_management_service.model.request.order.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

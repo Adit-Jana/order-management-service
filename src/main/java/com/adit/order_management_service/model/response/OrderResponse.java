@@ -1,7 +1,7 @@
 package com.adit.order_management_service.model.response;
 
 import com.adit.order_management_service.model.request.AdditionalInfo;
-import com.adit.order_management_service.model.request.OrderStatus;
+import com.adit.order_management_service.model.request.order.OrderStatus;
 import lombok.Builder;
 import lombok.Data;
 

@@ -20,11 +20,12 @@ public class ProductResponseDto {
 
     public static ProductResponseDto fromEntity(ProductEntity productEntity) {
         ProductResponseDto productResponseDto = new ProductResponseDto();
-        productResponseDto.productId = productEntity.getProduct_id();
-        productResponseDto.productName = productEntity.getProduct_name();
-        productResponseDto.productDesc = productEntity.getProduct_desc();
-        productResponseDto.productPrice = productEntity.getProduct_price();
-        productResponseDto.productCategory = productEntity.getProduct_category();
+        productResponseDto.productId = productEntity.getProductId();
+        productResponseDto.productName = productEntity.getProductName();
+        productResponseDto.productDesc = productEntity.getProductDesc();
+        productResponseDto.productPrice = productEntity.getProductPrice();
+        productResponseDto.productCategory = productEntity.getProductCategory();
+        productResponseDto.productQuantity = productEntity.getProductQuantity();
         return productResponseDto;
     }
 }

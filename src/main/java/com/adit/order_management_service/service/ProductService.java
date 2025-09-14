@@ -3,9 +3,12 @@ package com.adit.order_management_service.service;
 import com.adit.order_management_service.dto.response.ProductResponseDto;
 import com.adit.order_management_service.entity.ProductEntity;
 import com.adit.order_management_service.exception.ProductNotFount;
-import com.adit.order_management_service.model.request.ProductDashboardView;
-import com.adit.order_management_service.model.request.ProductRequest;
+import com.adit.order_management_service.model.request.filter.ProductFilterDto;
+import com.adit.order_management_service.model.request.pagination.PaginationFilter;
+import com.adit.order_management_service.model.request.product.ProductDashboardView;
+import com.adit.order_management_service.model.request.product.ProductRequest;
 import com.adit.order_management_service.repo.ProductRepo;
+import com.adit.order_management_service.specification.ProductSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,22 +28,22 @@ public class ProductService {
 
     public ProductResponseDto createProductDetails(ProductRequest productRequest) {
         ProductEntity productEntity = ProductEntity.builder()
-                .product_name(productRequest.getProductName())
-                .product_desc(productRequest.getProductDesc())
-                .product_category(productRequest.getProductCategory())
-                .product_price(productRequest.getProductPrice())
-                .product_quantity(productRequest.getProductQuantity())
+                .productName(productRequest.getProductName())
+                .productDesc(productRequest.getProductDesc())
+                .productCategory(productRequest.getProductCategory())
+                .productPrice(productRequest.getProductPrice())
+                .productQuantity(productRequest.getProductQuantity())
                 .build();
         //save the date
         ProductEntity productEntityResponse = productRepo.save(productEntity);
 
         return ProductResponseDto.builder()
-                .productId(productEntityResponse.getProduct_id())
-                .productName(productEntity.getProduct_name())
-                .productDesc(productEntity.getProduct_desc())
-                .productPrice(productEntity.getProduct_price())
-                .productQuantity(productEntity.getProduct_quantity())
-                .productCategory(productEntity.getProduct_category())
+                .productId(productEntityResponse.getProductId())
+                .productName(productEntity.getProductName())
+                .productDesc(productEntity.getProductDesc())
+                .productPrice(productEntity.getProductPrice())
+                .productQuantity(productEntity.getProductQuantity())
+                .productCategory(productEntity.getProductCategory())
                 .build();
     }
 
@@ -50,21 +53,21 @@ public class ProductService {
         Optional<ProductEntity> productEntityResponse = productRepo.findById(productId);
         if (productEntityResponse.isPresent()) {
 
-            productEntityResponse.get().setProduct_name(productRequest.getProductName());
-            productEntityResponse.get().setProduct_desc(productRequest.getProductDesc());
-            productEntityResponse.get().setProduct_category(productRequest.getProductCategory());
-            productEntityResponse.get().setProduct_quantity(productRequest.getProductQuantity());
-            productEntityResponse.get().setProduct_price(productRequest.getProductPrice());
+            productEntityResponse.get().setProductName(productRequest.getProductName());
+            productEntityResponse.get().setProductDesc(productRequest.getProductDesc());
+            productEntityResponse.get().setProductCategory(productRequest.getProductCategory());
+            productEntityResponse.get().setProductQuantity(productRequest.getProductQuantity());
+            productEntityResponse.get().setProductPrice(productRequest.getProductPrice());
 
             ProductEntity productEntity = productRepo.save(productEntityResponse.get());
 
             return ProductResponseDto.builder()
-                    .productId(productEntity.getProduct_id())
-                    .productName(productEntity.getProduct_name())
-                    .productDesc(productEntity.getProduct_desc())
+                    .productId(productEntity.getProductId())
+                    .productName(productEntity.getProductName())
+                    .productDesc(productEntity.getProductDesc())
                     .productCategory(productRequest.getProductCategory())
-                    .productPrice(productEntity.getProduct_price())
-                    .productQuantity(productEntity.getProduct_quantity())
+                    .productPrice(productEntity.getProductPrice())
+                    .productQuantity(productEntity.getProductQuantity())
                     .build();
         } else {
             throw new ProductNotFount("Not found! Product id : " + productId);
@@ -74,12 +77,12 @@ public class ProductService {
     public ProductResponseDto getProductDetails(Long productId) {
         return productRepo.findById(productId)
                 .map(productEntity -> ProductResponseDto.builder()
-                        .productId(productEntity.getProduct_id())
-                        .productName(productEntity.getProduct_name())
-                        .productDesc(productEntity.getProduct_desc())
-                        .productCategory(productEntity.getProduct_category())
-                        .productPrice(productEntity.getProduct_price())
-                        .productQuantity(productEntity.getProduct_quantity())
+                        .productId(productEntity.getProductId())
+                        .productName(productEntity.getProductName())
+                        .productDesc(productEntity.getProductDesc())
+                        .productCategory(productEntity.getProductCategory())
+                        .productPrice(productEntity.getProductPrice())
+                        .productQuantity(productEntity.getProductQuantity())
                         .build()).orElseThrow(() -> new ProductNotFount("Not Found! product id: " + productId));
 
 
@@ -92,21 +95,55 @@ public class ProductService {
                 .map(id -> productRepo.findById(id)
                         .orElseThrow(() -> new ProductNotFount(" product id " + id)))
                 .map(pe -> productResponseDtoList.add(ProductResponseDto.builder()
-                        .productId(pe.getProduct_id())
-                        .productName(pe.getProduct_name())
-                        .productDesc(pe.getProduct_desc())
-                        .productCategory(pe.getProduct_category())
-                        .productPrice(pe.getProduct_price())
-                        .productQuantity(pe.getProduct_quantity())
+                        .productId(pe.getProductId())
+                        .productName(pe.getProductName())
+                        .productDesc(pe.getProductDesc())
+                        .productCategory(pe.getProductCategory())
+                        .productPrice(pe.getProductPrice())
+                        .productQuantity(pe.getProductQuantity())
                         .build())).toList();
 
         return productResponseDtoList;
 
     }
 
-    public ProductDashboardView getDashboardView(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ProductEntity> productEntities = productRepo.findAll(pageable);
-        return new ProductDashboardView(productEntities.map(ProductResponseDto::fromEntity));
+    public ProductDashboardView getDashboardView(int page, int size, String sortBy, String sortOrder,
+                                                 ProductFilterDto productFilterDto) {
+
+        // add custom specification filter
+        // add sorting and dynamic filtering
+        ProductSpecification productSpecification = new ProductSpecification(productFilterDto);
+
+        // sorting
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder)
+                ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        Sort sort = Sort.by(direction, sortBy);
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<ProductEntity> productPage = productRepo.findAll(productSpecification, pageable);
+
+        ProductDashboardView dashboardView = new ProductDashboardView();
+        // Map the product entities to ProductResponseDto
+        List<ProductResponseDto> productDtos = productPage.stream()
+                .map(ProductResponseDto::fromEntity)
+                .toList();
+        dashboardView.setProductResponseDto(productDtos);
+
+        PaginationFilter paginationFilter = new PaginationFilter();
+        paginationFilter.setPageNumber(productPage.getNumber());
+        paginationFilter.setPageSize(productPage.getSize());
+        paginationFilter.setTotalElements(productPage.getTotalElements());
+        paginationFilter.setTotalPages(productPage.getTotalPages());
+        paginationFilter.setFirst(productPage.isFirst());
+        paginationFilter.setLast(productPage.isLast());
+        paginationFilter.setSortBy(sortBy);
+        paginationFilter.setSortOrder(sortOrder);
+        dashboardView.setPaginationFilter(paginationFilter);
+
+        dashboardView.setPaginationFilter(paginationFilter);
+
+        return dashboardView;
+
     }
 }

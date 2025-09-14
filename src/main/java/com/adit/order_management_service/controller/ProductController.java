@@ -1,11 +1,12 @@
 package com.adit.order_management_service.controller;
 
 import com.adit.order_management_service.dto.response.ProductResponseDto;
-import com.adit.order_management_service.model.request.ProductDashboardView;
-import com.adit.order_management_service.model.request.ProductRequest;
+import com.adit.order_management_service.model.request.filter.ProductFilterDto;
+import com.adit.order_management_service.model.request.product.ProductDashboardView;
+import com.adit.order_management_service.model.request.product.ProductRequest;
 import com.adit.order_management_service.service.ProductService;
+import org.aspectj.lang.annotation.RequiredTypes;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -48,9 +49,12 @@ public class ProductController {
     @GetMapping("/dashboard")
     public ResponseEntity<ProductDashboardView> getAllTheProductsView(
             @RequestParam(defaultValue = "0", value = "page") int page,
-            @RequestParam(defaultValue = "5", value = "size") int size) {
+            @RequestParam(defaultValue = "5", value = "size") int size,
+            @RequestParam String sortBy,
+            @RequestParam String sortOrder,
+            ProductFilterDto productFilterDto) {
         ProductDashboardView productResponsePaginationView =
-               productService.getDashboardView(page, size);
+               productService.getDashboardView(page, size, sortBy, sortOrder ,productFilterDto);
         return ResponseEntity.ok(productResponsePaginationView);
     }
 

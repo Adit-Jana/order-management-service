@@ -1,5 +1,6 @@
-package com.adit.order_management_service.model.request;
+package com.adit.order_management_service.model.request.order;
 
+import com.adit.order_management_service.model.request.AdditionalInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

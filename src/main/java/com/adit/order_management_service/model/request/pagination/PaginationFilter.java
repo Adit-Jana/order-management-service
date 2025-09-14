@@ -3,6 +3,8 @@ package com.adit.order_management_service.model.request.pagination;
 import lombok.*;
 import org.springframework.data.domain.Page;
 
+@Builder
+@AllArgsConstructor
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,14 +15,18 @@ public class PaginationFilter {
     private int totalPages;
     private boolean isFirst;
     private boolean isLast;
-    //private String sortBy;
+    private String sortBy;
+    private String sortOrder;
 
-    public PaginationFilter(Page<? extends Object> on) {
+    // it will ideal if there are no explicit sort direction and sort by
+    /*public PaginationFilter(Page<? extends Object> on) {
         this.pageNumber = on.getNumber();
         this.pageSize = on.getSize();
         this.totalElements = on.getTotalElements();
         this.totalPages = on.getTotalPages();
         this.isFirst = on.isFirst();
         this.isLast = on.isLast();
-    }
+        this.sortBy = sortBy;
+        this.sortOrder = sortOrder;
+    }*/
 }

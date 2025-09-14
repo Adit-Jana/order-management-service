@@ -1,5 +1,9 @@
-package com.adit.order_management_service.model.request;
+package com.adit.order_management_service.model.request.order;
 
+import com.adit.order_management_service.model.request.BillingAddress;
+import com.adit.order_management_service.model.request.Item;
+import com.adit.order_management_service.model.request.PaymentDetails;
+import com.adit.order_management_service.model.request.ShippingAddress;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

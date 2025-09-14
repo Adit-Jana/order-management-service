@@ -1,6 +1,6 @@
 package com.adit.order_management_service.dto.response;
 
-import com.adit.order_management_service.model.request.OrderStatus;
+import com.adit.order_management_service.model.request.order.OrderStatus;
 import lombok.Builder;
 import lombok.Data;
 
