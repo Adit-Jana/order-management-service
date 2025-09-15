@@ -2,7 +2,7 @@ package com.adit.order_management_service.controller;
 
 import com.adit.order_management_service.dto.response.OrderResponseDto;
 import com.adit.order_management_service.model.request.AdditionalInfo;
-import com.adit.order_management_service.model.request.OmsOrderRequestPayload;
+import com.adit.order_management_service.model.request.order.OmsOrderRequestPayload;
 import com.adit.order_management_service.model.response.OrderResponse;
 import com.adit.order_management_service.service.OrderService;
 import lombok.extern.slf4j.Slf4j;

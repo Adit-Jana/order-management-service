@@ -1,7 +1,7 @@
 package com.adit.order_management_service.mapper;
 
 import com.adit.order_management_service.dto.request.OrderRequestDto;
-import com.adit.order_management_service.model.request.OmsOrderRequestPayload;
+import com.adit.order_management_service.model.request.order.OmsOrderRequestPayload;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -1,4 +1,4 @@
-package com.adit.order_management_service.model.request;
+package com.adit.order_management_service.model.request.order;
 
 public enum OrderStatus {
 
