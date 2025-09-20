@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
 //@EnableWebSecurity
@@ -48,8 +49,8 @@ public class WebSecurityConfiguration {
         httpSecurity
                 .csrf(csrf-> csrf.disable()) // disable CSRF for APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**").permitAll() // access all
-                        .requestMatchers("./admin/**").hasRole("ADMIN") // restricted access
+                        .requestMatchers(new RegexRequestMatcher(".*/public/.*", null)).permitAll() // access all
+                        .requestMatchers("/./admin/**").hasRole("ADMIN") // restricted access
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic ->

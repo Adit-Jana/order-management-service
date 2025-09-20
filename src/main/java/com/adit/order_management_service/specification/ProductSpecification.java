@@ -17,7 +17,12 @@ public class ProductSpecification implements Specification<ProductEntity>{
     private final ProductFilterDto productFilterDto;
 
     public ProductSpecification(ProductFilterDto productFilterDto) {
-        this.productFilterDto = productFilterDto;
+        if (Objects.nonNull(productFilterDto)) {
+            this.productFilterDto = productFilterDto;
+        } else {
+            this.productFilterDto = new ProductFilterDto();
+        }
+
     }
 
     @Override
@@ -34,9 +39,9 @@ public class ProductSpecification implements Specification<ProductEntity>{
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("productPrice"), productFilterDto.getMaxPrice()));
         }
 
-        /*if (productFilterDto.getCategory() != null) {
-            predicates.add(criteriaBuilder.equal(root.get("product_category"), productFilterDto.getCategory()));
-        }*/
+        if (productFilterDto.getCategory() != null) {
+            predicates.add(criteriaBuilder.equal(root.get("productCategory"), productFilterDto.getCategory()));
+        }
 
         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
