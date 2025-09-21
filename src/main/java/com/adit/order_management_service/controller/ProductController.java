@@ -58,6 +58,18 @@ public class ProductController {
         return ResponseEntity.ok(productResponsePaginationView);
     }
 
+    @GetMapping("/admin/dashboard")
+    public ResponseEntity<ProductDashboardView> getAllTheProductsAdminView(
+            @RequestParam(defaultValue = "0", value = "page", required = false) int page,
+            @RequestParam(defaultValue = "5", value = "size", required = false) int size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortOrder,
+            @RequestBody(required = false) ProductFilterDto productFilterDto) {
+        ProductDashboardView productResponsePaginationView =
+                productService.getDashboardView(page, size, sortBy, sortOrder ,productFilterDto);
+        return ResponseEntity.ok(productResponsePaginationView);
+    }
+
     @PutMapping(value = "/update")
     public ResponseEntity<ProductResponseDto> updatedProductDetails(@RequestParam (value = "productId") Long productId,
                                                                     @RequestBody ProductRequest productRequest) {

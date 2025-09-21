@@ -32,7 +32,7 @@ public class WebSecurityConfiguration {
     }
 
     // Define in-memory users with encoded passwords
-    @Bean
+    /*@Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
 
         UserDetails user = User.builder()
@@ -40,8 +40,15 @@ public class WebSecurityConfiguration {
                 .password(passwordEncoder.encode("pass"))
                 .roles("USER")
                 .build();
-        return new InMemoryUserDetailsManager(user);
-    }
+
+        UserDetails admin = User.builder()
+                .username("admin")
+                .password(passwordEncoder.encode("admin"))
+                .roles("ADMIN")
+                .build();
+
+        return new InMemoryUserDetailsManager(user, admin);
+    }*/
 
     // Define security filter chain
     @Bean
@@ -50,7 +57,8 @@ public class WebSecurityConfiguration {
                 .csrf(csrf-> csrf.disable()) // disable CSRF for APIs
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(new RegexRequestMatcher(".*/public/.*", null)).permitAll() // access all
-                        .requestMatchers("/./admin/**").hasRole("ADMIN") // restricted access
+                        .requestMatchers("/user/**").hasRole("USER") // user authenticated
+                        .requestMatchers("/admin/**").hasAnyRole("USER","ADMIN") // restricted access
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic ->
