@@ -46,15 +46,27 @@ public class ProductController {
         return new ResponseEntity<>(productResponseDtoList, HttpStatusCode.valueOf(200));
     }
 
-    @GetMapping("/dashboard")
+    @GetMapping("/public/dashboard")
     public ResponseEntity<ProductDashboardView> getAllTheProductsView(
-            @RequestParam(defaultValue = "0", value = "page") int page,
-            @RequestParam(defaultValue = "5", value = "size") int size,
-            @RequestParam String sortBy,
-            @RequestParam String sortOrder,
-            ProductFilterDto productFilterDto) {
+            @RequestParam(defaultValue = "0", value = "page", required = false) int page,
+            @RequestParam(defaultValue = "5", value = "size", required = false) int size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortOrder,
+            @RequestBody(required = false) ProductFilterDto productFilterDto) {
         ProductDashboardView productResponsePaginationView =
                productService.getDashboardView(page, size, sortBy, sortOrder ,productFilterDto);
+        return ResponseEntity.ok(productResponsePaginationView);
+    }
+
+    @GetMapping("/admin/dashboard")
+    public ResponseEntity<ProductDashboardView> getAllTheProductsAdminView(
+            @RequestParam(defaultValue = "0", value = "page", required = false) int page,
+            @RequestParam(defaultValue = "5", value = "size", required = false) int size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortOrder,
+            @RequestBody(required = false) ProductFilterDto productFilterDto) {
+        ProductDashboardView productResponsePaginationView =
+                productService.getDashboardView(page, size, sortBy, sortOrder ,productFilterDto);
         return ResponseEntity.ok(productResponsePaginationView);
     }
 

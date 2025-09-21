@@ -1,9 +1,11 @@
 package com.adit.order_management_service.error;
 
 import com.adit.order_management_service.exception.OrderNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -21,6 +23,18 @@ public class OmsErrorResponseHandler {
                 .errorCode("100")
                 .timestamp(localDateTime.toString())
                 .build(), HttpStatus.OK);
+    }
+
+    // useful for if we want to have consistent json error mapping
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthException(AuthenticationException ex,
+                                                             HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                "401",
+                request.getServletPath()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
 }

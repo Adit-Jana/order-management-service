@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -115,12 +116,30 @@ public class ProductService {
         ProductSpecification productSpecification = new ProductSpecification(productFilterDto);
 
         // sorting
-        Sort.Direction direction = "desc".equalsIgnoreCase(sortOrder)
+
+        // if sort order not provided in request that handled
+        String sortByProductViewDirection;
+        String sortByProductCategory;
+
+        if (Objects.nonNull(sortOrder)) {
+            sortByProductViewDirection = sortOrder;
+        } else {
+            sortByProductViewDirection = "desc";
+        }
+
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortByProductViewDirection)
                 ? Sort.Direction.DESC : Sort.Direction.ASC;
 
-        Sort sort = Sort.by(direction, sortBy);
+        if (Objects.nonNull(sortBy)) {
+            sortByProductCategory = sortBy;
+        } else {
+            sortByProductCategory = "productName";
+        }
 
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Sort sort1 = Sort.by(direction, sortByProductCategory);
+        Pageable pageable = PageRequest.of(page, size, sort1);
+
+
         Page<ProductEntity> productPage = productRepo.findAll(productSpecification, pageable);
 
         ProductDashboardView dashboardView = new ProductDashboardView();
@@ -137,8 +156,8 @@ public class ProductService {
         paginationFilter.setTotalPages(productPage.getTotalPages());
         paginationFilter.setFirst(productPage.isFirst());
         paginationFilter.setLast(productPage.isLast());
-        paginationFilter.setSortBy(sortBy);
-        paginationFilter.setSortOrder(sortOrder);
+        paginationFilter.setSortBy(sortByProductCategory);
+        paginationFilter.setSortOrder(sortByProductViewDirection);
         dashboardView.setPaginationFilter(paginationFilter);
 
         dashboardView.setPaginationFilter(paginationFilter);
