@@ -37,15 +37,15 @@ public class UserService implements UserDetailsService {
 
         // check if username already exists
 
-        Set<OmsRole> userRoleList = new HashSet<>();
+        Set<OmsRole> userRoleList;
 
-        List<Roles> userRoleTagList = new ArrayList<>();
+        List<Roles> userRoleTagList;
 
 
         // fetch role from DB
         userRoleList = userRequest.getRole().stream()
-                .map(roleName -> omsRoleRepo.findByRoleName(String.valueOf(roleName))
-                        .orElseThrow(() -> new RuntimeException(" Role not found: " + roleName)))
+                .map(roleName -> omsRoleRepo.findByRoleName(roleName.getDesc())
+                        .orElseThrow(() -> new RuntimeException(" Role not found: " + roleName.getDesc())))
                 .collect(Collectors.toSet());
 
         userRoleTagList = userRequest.getRole().stream().collect(Collectors.toList());
@@ -67,13 +67,24 @@ public class UserService implements UserDetailsService {
     }
 
     public UserResponseDto getUser(UserRequest userRequest) {
+
+        // This triggers your CustomUserDetailsService.loadUserByUsername
+        // User is authenticated now
         UserDetails userDetails = loadUserByUsername(userRequest.getUserName());
+
+        UserEntity omsUser = userRepo.findByUserName(userRequest.getUserName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userRequest.getUserName()));
 
         UserResponseDto userResponseDto = null;
 
         if (Objects.nonNull(userDetails) && Objects.nonNull(userDetails.getUsername())) {
             userResponseDto = UserResponseDto.builder()
+                    .userId(omsUser.getUserId())
                     .userName(userDetails.getUsername())
+                    .rolesList(omsUser.getUserRoles().stream()
+                            .map(OmsRole::getRoleDesc)
+                            .collect(Collectors.toList()
+                    ))
                     .build();
         }
         return userResponseDto;
@@ -89,7 +100,10 @@ public class UserService implements UserDetailsService {
         return User.builder()
                 .username(omsUser.getUserName())
                 .password(omsUser.getUserPassword()) // must already be BCrypt encoded
-                //.roles()    // Spring will add ROLE_ prefix internally
+                .disabled(Boolean.FALSE.equals(omsUser.getUserEnabled()))
+                .roles(String.valueOf(omsUser.getUserRolesTag().stream()
+                        .map(Roles::getDesc).collect(Collectors.toSet())))    // Spring will add ROLE_ prefix internally
                 .build();
+
     }
 }
