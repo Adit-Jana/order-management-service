@@ -69,7 +69,14 @@
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
-	</dependencies>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.12.5</version> <!-- latest stable -->
+        </dependency>
+
+
+    </dependencies>
 
 	<build>
 		<plugins>
