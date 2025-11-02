@@ -1,5 +1,7 @@
 package com.adit.order_management_service.security.jwt;
 
+import com.adit.order_management_service.entity.RefreshToken;
+import com.adit.order_management_service.repo.RefreshTokenRepo;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -22,16 +24,18 @@ public class JwtService {
     private final String issuer;
     private final long accessExpSeconds;
     private final long refreshExpSeconds;
+    private final RefreshTokenRepo refreshTokenRepo;
 
     @Autowired
     public JwtService(@Value("${security.jwt.secret}") String secret,
                       @Value("${security.jwt.issuer}") String issuer,
                       @Value("${security.jwt.access-token-exp-seconds}") long accessExpSeconds,
-                      @Value("${security.jwt.refresh-token-exp-seconds}") long refreshExpSeconds){
+                      @Value("${security.jwt.refresh-token-exp-seconds}") long refreshExpSeconds, RefreshTokenRepo refreshTokenRepo){
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.issuer = issuer;
         this.accessExpSeconds = accessExpSeconds;
         this.refreshExpSeconds = refreshExpSeconds;
+        this.refreshTokenRepo = refreshTokenRepo;
     }
 
     // generate access token
@@ -51,7 +55,7 @@ public class JwtService {
 
     public String generateRefreshToken(org.springframework.security.core.userdetails.UserDetails user) {
         Instant now = Instant.now();
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .subject(user.getUsername())
                 .issuer(issuer)
                 .issuedAt(Date.from(now))
@@ -59,6 +63,16 @@ public class JwtService {
                 .claim("type", "refresh")
                 .signWith(key)
                 .compact();
+
+        // update as we need refresh token regenerate every time
+        RefreshToken entity = new RefreshToken();
+        entity.setToken(token);
+        entity.setUsername(user.getUsername());
+        entity.setExpiry(now.plusSeconds(refreshExpSeconds));
+        entity.setRevoked(false);
+        refreshTokenRepo.save(entity);
+
+        return token;
     }
 
     public boolean isValid(String token) {
