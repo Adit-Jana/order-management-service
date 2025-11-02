@@ -40,10 +40,9 @@ public class UserEntity {
     @Column(name = "user_enabled")
     private Boolean userEnabled;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "user_roles", nullable = false)
     @ColumnDefault(value = "NA")
-    private List<Roles> userRolesTag;
+    private List<String> userRolesTag;
 
 
     @ManyToMany(fetch = FetchType.EAGER)
