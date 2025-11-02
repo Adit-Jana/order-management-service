@@ -1,6 +1,6 @@
 package com.adit.order_management_service.security.jwt;
 
-import com.adit.order_management_service.service.UserService;
+import com.adit.order_management_service.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,10 +22,10 @@ import java.util.Objects;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
 
     @Autowired
-    public JwtAuthFilter(JwtService jwtService, UserService userDetailsService) {
+    public JwtAuthFilter(JwtService jwtService, CustomUserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
     }
