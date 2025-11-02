@@ -15,7 +15,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserRequest implements Serializable {
-    private String userName;
+    private String username;
     private String password;
-    private List<Roles> role;
+    private List<Roles> roles;
 }
