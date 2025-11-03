@@ -1,37 +1,43 @@
 package com.adit.order_management_service.controller;
 
 import com.adit.order_management_service.dto.response.UserResponseDto;
-import com.adit.order_management_service.model.request.UserRequest;
-import com.adit.order_management_service.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import com.adit.order_management_service.entity.OmsRole;
+import com.adit.order_management_service.entity.UserEntity;
+import com.adit.order_management_service.repo.UserRepo;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Objects;
+import java.util.List;
 
 @RestController
-@RequestMapping("/v2")
+@RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserRepo userRepository;
 
-    @PostMapping("/public/create")
-    public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequest userRequest) {
-        UserResponseDto response = userService.createUser(userRequest);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public UserController(UserRepo userRepository) {
+        this.userRepository = userRepository;
     }
 
-    @PostMapping("/public/login")
-    public ResponseEntity<?> userLogin(@RequestBody UserRequest userRequest) {
-       UserResponseDto userResponseDto = userService.getUser(userRequest);
-       if (Objects.nonNull(userResponseDto)) {
-           return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
-       }
-       return new ResponseEntity<>(userRequest.getUserName() +" not found!", HttpStatus.NOT_FOUND);
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> getCurrentUser(@AuthenticationPrincipal UserDetails principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        UserEntity user = userRepository.findByUserName(principal.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<String> roles = user.getUserRoles().stream()
+                .map(OmsRole::getRoleName)
+                .map(r -> "ROLE_" + r)
+                .toList();
+
+        UserResponseDto dto = new UserResponseDto(user.getUserId(), user.getUserName(), roles);
+        return ResponseEntity.ok(dto);
     }
 }
