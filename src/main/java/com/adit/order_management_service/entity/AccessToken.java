@@ -7,13 +7,13 @@ import java.time.Instant;
 
 @Data
 @Entity
-@Table(name = "oms_refresh_tokens")
-public class RefreshToken {
+@Table(name = "oms_access_tokens")
+public class AccessToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY,
             generator = "token_sequence")
     @SequenceGenerator(name = "token_sequence",
-            sequenceName = "oms_refresh_token_sequence",
+            sequenceName = "oms_access_token_sequence",
             allocationSize = 1)
     private Long id;
 
@@ -21,8 +21,6 @@ public class RefreshToken {
     private String token;
 
     private String username;
-
-    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
     private Instant expiry;
-    private boolean revoked = false;
+    private boolean revoked;
 }
