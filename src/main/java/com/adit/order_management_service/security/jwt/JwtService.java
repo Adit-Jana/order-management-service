@@ -1,12 +1,16 @@
 package com.adit.order_management_service.security.jwt;
 
+import com.adit.order_management_service.entity.AccessToken;
 import com.adit.order_management_service.entity.RefreshToken;
+import com.adit.order_management_service.repo.AccessTokenRepo;
 import com.adit.order_management_service.repo.RefreshTokenRepo;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -25,41 +29,60 @@ public class JwtService {
     private final long accessExpSeconds;
     private final long refreshExpSeconds;
     private final RefreshTokenRepo refreshTokenRepo;
+    private final AccessTokenRepo accessTokenRepo;
 
     @Autowired
     public JwtService(@Value("${security.jwt.secret}") String secret,
                       @Value("${security.jwt.issuer}") String issuer,
                       @Value("${security.jwt.access-token-exp-seconds}") long accessExpSeconds,
-                      @Value("${security.jwt.refresh-token-exp-seconds}") long refreshExpSeconds, RefreshTokenRepo refreshTokenRepo){
+                      @Value("${security.jwt.refresh-token-exp-seconds}") long refreshExpSeconds, RefreshTokenRepo refreshTokenRepo, AccessTokenRepo accessTokenRepo) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.issuer = issuer;
         this.accessExpSeconds = accessExpSeconds;
         this.refreshExpSeconds = refreshExpSeconds;
         this.refreshTokenRepo = refreshTokenRepo;
+        this.accessTokenRepo = accessTokenRepo;
     }
 
     // generate access token
     public String generateAccessToken(UserDetails user) {
         Instant now = Instant.now();
-        return Jwts.builder()
+        Instant expiry = now.plusSeconds(accessExpSeconds);
+
+        String token = Jwts.builder()
                 .subject(user.getUsername())
                 .issuer(issuer)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(accessExpSeconds)))
                 .claim("roles", user.getAuthorities().stream()
-                        .map(a -> a.getAuthority())
+                        .map(GrantedAuthority::getAuthority)
                         .toList())
+                .claim("type", "access")
                 .signWith(key)
                 .compact();
+
+        AccessToken entity = new AccessToken();
+        entity.setToken(token);
+        entity.setUsername(user.getUsername());
+        entity.setExpiry(expiry);
+        entity.setRevoked(false);
+        accessTokenRepo.save(entity);
+
+        return token;
     }
 
-    public String generateRefreshToken(org.springframework.security.core.userdetails.UserDetails user) {
+    public String generateRefreshToken(UserDetails user) {
         Instant now = Instant.now();
+        System.out.println("now time = " + now);
+        System.out.println("refreshExpSeconds = " + refreshExpSeconds);
+        Instant expiry = now.plusSeconds(refreshExpSeconds);
+
+
         String token = Jwts.builder()
                 .subject(user.getUsername())
                 .issuer(issuer)
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plusSeconds(refreshExpSeconds)))
+                .expiration(Date.from(expiry))
                 .claim("type", "refresh")
                 .signWith(key)
                 .compact();
@@ -68,7 +91,7 @@ public class JwtService {
         RefreshToken entity = new RefreshToken();
         entity.setToken(token);
         entity.setUsername(user.getUsername());
-        entity.setExpiry(now.plusSeconds(refreshExpSeconds));
+        entity.setExpiry(expiry);
         entity.setRevoked(false);
         refreshTokenRepo.save(entity);
 
@@ -122,6 +145,20 @@ public class JwtService {
                 .getPayload();
         return "refresh".equals(claims.get("type"));
     }
+
+    public Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && isValid(token);
+    }
+
 
 }
 
