@@ -39,11 +39,6 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/v2/auth")
 public class AuthenticationController {
 
-    // todo
-    // oms access token table needs to be created in database
-    // sequence needs to be added
-
-
     private final AuthenticationManager authManager;
     private final CustomUserDetailsService userDetailsService;
     private final JwtService jwtService;
