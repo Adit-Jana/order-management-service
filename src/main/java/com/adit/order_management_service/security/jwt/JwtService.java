@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.List;
@@ -24,25 +23,31 @@ import java.util.List;
 @Component
 public class JwtService {
 
-    private final Key key;
     private final String issuer;
     private final long accessExpSeconds;
     private final long refreshExpSeconds;
     private final RefreshTokenRepo refreshTokenRepo;
     private final AccessTokenRepo accessTokenRepo;
 
+    @Value("${security.jwt.secret}")
+    private String secret;
+
     @Autowired
-    public JwtService(@Value("${security.jwt.secret}") String secret,
-                      @Value("${security.jwt.issuer}") String issuer,
-                      @Value("${security.jwt.access-token-exp-seconds}") long accessExpSeconds,
-                      @Value("${security.jwt.refresh-token-exp-seconds}") long refreshExpSeconds, RefreshTokenRepo refreshTokenRepo, AccessTokenRepo accessTokenRepo) {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    public JwtService(
+            @Value("${security.jwt.issuer}") String issuer,
+            @Value("${security.jwt.access-token-exp-seconds}") long accessExpSeconds,
+            @Value("${security.jwt.refresh-token-exp-seconds}") long refreshExpSeconds, RefreshTokenRepo refreshTokenRepo, AccessTokenRepo accessTokenRepo) {
         this.issuer = issuer;
         this.accessExpSeconds = accessExpSeconds;
         this.refreshExpSeconds = refreshExpSeconds;
         this.refreshTokenRepo = refreshTokenRepo;
         this.accessTokenRepo = accessTokenRepo;
     }
+
+    public SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
 
     // generate access token
     public String generateAccessToken(UserDetails user) {
@@ -58,7 +63,7 @@ public class JwtService {
                         .map(GrantedAuthority::getAuthority)
                         .toList())
                 .claim("type", "access")
-                .signWith(key)
+                .signWith(getSigningKey())
                 .compact();
 
         AccessToken entity = new AccessToken();
@@ -84,7 +89,7 @@ public class JwtService {
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiry))
                 .claim("type", "refresh")
-                .signWith(key)
+                .signWith(getSigningKey())
                 .compact();
 
         // update as we need refresh token regenerate every time
@@ -101,7 +106,7 @@ public class JwtService {
     public boolean isValid(String token) {
         try {
             Jwts.parser()
-                    .verifyWith((SecretKey) key)
+                    .verifyWith(getSigningKey())
                     .requireIssuer(issuer)
                     .build()
                     .parseSignedClaims(token);
@@ -113,7 +118,7 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return Jwts.parser()
-                .verifyWith((SecretKey) key)
+                .verifyWith(getSigningKey())
                 .requireIssuer(issuer)
                 .build()
                 .parseSignedClaims(token)
@@ -124,7 +129,7 @@ public class JwtService {
     @SuppressWarnings("unchecked")
     public List<String> extractRoles(String token) {
         var claims = Jwts.parser()
-                .verifyWith((SecretKey) key)
+                .verifyWith(getSigningKey())
                 .requireIssuer(issuer)
                 .build()
                 .parseSignedClaims(token)
@@ -138,7 +143,7 @@ public class JwtService {
 
     public boolean isRefreshToken(String token) {
         var claims = Jwts.parser()
-                .verifyWith((SecretKey) key)
+                .verifyWith(getSigningKey())
                 .requireIssuer(issuer)
                 .build()
                 .parseSignedClaims(token)
@@ -148,7 +153,7 @@ public class JwtService {
 
     public Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .setSigningKey(key)
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
