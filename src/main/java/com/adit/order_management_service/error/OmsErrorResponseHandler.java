@@ -2,7 +2,6 @@ package com.adit.order_management_service.error;
 
 import com.adit.order_management_service.exception.OrderNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
