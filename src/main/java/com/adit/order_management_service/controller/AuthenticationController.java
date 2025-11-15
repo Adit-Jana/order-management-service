@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -80,6 +81,9 @@ public class AuthenticationController {
                 .map(r -> Roles.getSpecificRoles(Math.toIntExact(r.getRoleId())))
                 .collect(Collectors.toList())
         );
+
+
+        user.setUserRoles(new HashSet<>(roleEntities));
 
         UserEntity saved = userRepo.save(user);
 
