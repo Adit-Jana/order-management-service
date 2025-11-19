@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -23,6 +24,7 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping( value = "/create_order")
     public ResponseEntity<OrderResponse> createOrder(@RequestBody @Validated OmsOrderRequestPayload orderRequestPayload) {
         OrderResponseDto responseDto = orderService.processOrder(orderRequestPayload);
