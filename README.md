@@ -36,30 +36,6 @@ A robust backend service for managing orders in an e-commerce marketplace platfo
 - **Logging**: SLF4J / Logback
 - **Database**: MySQL / PostgreSQL (configurable)
 
-## 📁 Project Structure
-
-```
-order-management-service/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   ├── controller/        # REST API endpoints
-│   │   │   ├── service/           # Business logic
-│   │   │   ├── repository/        # Data access layer
-│   │   │   ├── model/             # Entity classes
-│   │   │   ├── dto/               # Data transfer objects
-│   │   │   ├── security/          # JWT and security configuration
-│   │   │   ├── exception/         # Custom exceptions
-│   │   │   ├── util/              # Utility classes
-│   │   │   └── config/            # Application configuration
-│   │   └── resources/
-│   │       └── application.yml     # Configuration properties
-│   └── test/
-├── pom.xml
-├── mvnw / mvnw.cmd
-└── README.md
-```
-
 ## 🚀 Getting Started
 
 ### Prerequisites
