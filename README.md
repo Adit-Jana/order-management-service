@@ -1,6 +1,5 @@
 # Order Management Service
 
-
 A robust backend service for managing orders in an e-commerce marketplace platform. Built with Spring Boot and Java, featuring advanced JWT-based security, comprehensive logging, and role-based access control.
 
 ## 📋 Table of Contents
